@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 '''a shitty little a-z lyrics scraper for texty fun.
-returns all the lyrics by a given artist by song.
-azlyrics doesn't like scraping so use with caution!'''
+returns a json file of all the lyrics by a given artist by song.
+azlyrics doesn't like scraping (eep) so use with caution!'''
 
 from pattern.web import URL, DOM, abs, plaintext
 import re, argparse, json
@@ -23,14 +23,13 @@ def all_lyrics(artist):
 		song_url = URL(link)
 		song_dom = DOM(song_url.download())
 		lyrics.append(plaintext(song_dom('div#main div')[4:5][0].content))
-	lyrics_dict = {t for t in titles: l for l in lyrics}
-	return lyrics_dict 
-	# return json.dumps(lyrics_dict, sort_keys=True)
-
-# todo: add tokenizing?
+	zippy_lyrics = zip(titles, lyrics)
+	return json.dumps(zippy_lyrics, sort_keys=True)
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
 	parser.add_argument('artist', type=str, help='artist to get lyrics from.')
 	args = parser.parse_args()
-	print all_lyrics(args.artist) # todo: save as a json file?
+	fname = args.artist + '-lyrics.json'
+	with open(fname, 'w') as f:
+		f.write(all_lyrics(args.artist))
